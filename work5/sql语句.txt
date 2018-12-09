@@ -1,0 +1,4 @@
+
+select t.* ,s.gaoshu,s.english,s.c
+from t_stu t ,score s
+where t.xh=s.xh
