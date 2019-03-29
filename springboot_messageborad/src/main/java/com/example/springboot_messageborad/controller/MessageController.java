@@ -1,6 +1,6 @@
 package com.example.springboot_messageborad.controller;
 
-import com.alibaba.fastjson.JSONObject;
+
 import com.example.springboot_messageborad.domain.Message;
 import com.example.springboot_messageborad.service.MessageBoardService;
 import com.google.gson.JsonObject;
