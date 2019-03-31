@@ -24,6 +24,7 @@ public class MessageBoardService {
     public String findAllMessages(){
         Gson gson = new Gson();
         List<Message> messages = messageBoardDao.findByPid(0);
+        System.out.println(messages.size());
         for (Message message:messages
              ) {
             List<Message> childList =findMessageChild(message);

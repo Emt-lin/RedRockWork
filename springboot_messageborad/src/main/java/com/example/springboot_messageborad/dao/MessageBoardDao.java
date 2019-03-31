@@ -3,6 +3,7 @@ package com.example.springboot_messageborad.dao;
 import com.example.springboot_messageborad.domain.Message;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
@@ -13,14 +14,15 @@ import java.util.List;
  * @date 2019/3/29
  */
 @Mapper
+@Repository
 public interface MessageBoardDao {
     /**
      * 查询所有留言
      * @param id
      * @return
      */
-    @Select("select * from message where id=#{id}")
-    List<Message> findByPid(Integer id);
+    @Select("select * from message where pid=#{id}")
+    List<Message> findByPid(@Param("id") Integer id);
 
     /**
      * 插入留言

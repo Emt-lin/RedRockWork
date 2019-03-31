@@ -11,7 +11,6 @@ import java.util.List;
  * @author psl
  * @date 2019/3/29
  */
-@Data
 public class Message {
     private Integer id;
     private Integer pid;
