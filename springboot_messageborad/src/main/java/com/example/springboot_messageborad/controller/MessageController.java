@@ -22,7 +22,12 @@ public class MessageController {
     @RequestMapping(value = "/findAll",produces = "application/json")
     public String finaAll(){
         String messages = messageBoardService.findAllMessages();
-        return messages;
+        if (messages != null){
+            return messages;
+        }else {
+            return "没有留言";
+        }
+
     }
     @RequestMapping("/insert")
     public String insertMessage(Message message){
