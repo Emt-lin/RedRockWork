@@ -19,6 +19,6 @@ public interface KebiaoDao {
      * @param id
      * @return
      */
-    @Select("select * from course where id = #{id}")
+    @Select("select * from course where cid = #{id}")
     List<Kebiao>findById(Integer id);
 }
