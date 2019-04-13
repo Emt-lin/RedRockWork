@@ -13,6 +13,11 @@ import java.util.List;
 @Repository
 @Mapper
 public interface StudentDao {
+    /**
+     * 根据学号查课表
+     * @param id
+     * @return
+     */
     @Select("select * from student where id = #{id}")
     @Results(id = "kebiao",value = {
             @Result(id = true,column = "id",property = "id"),
@@ -22,7 +27,12 @@ public interface StudentDao {
     })
     Student findByStuID(Integer id);
 
-    @Select("select * from course where sname = #{name}")
+    /**
+     * 根据姓名查课表
+     * @param name
+     * @return
+     */
+    @Select("select * from student where sname = #{name}")
     @ResultMap("kebiao")
     Student findByName(String name);
 }
