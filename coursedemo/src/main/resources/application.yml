@@ -1,0 +1,4 @@
+logging:
+  config: slf4j.xml
+  level:
+    root: info

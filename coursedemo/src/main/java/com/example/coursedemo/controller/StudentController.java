@@ -1,6 +1,7 @@
 package com.example.coursedemo.controller;
 
 import com.example.coursedemo.service.StudentService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +12,7 @@ import java.util.List;
  * @author psl
  * @date 2019/4/7
  */
+@Slf4j
 @RestController
 public class StudentController {
     @Autowired
