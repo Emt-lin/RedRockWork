@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket示例</title>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport' />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            background: url(https://i0.hdslb.com/bfs/archive/3329c9f0abfb925ae30441f24d924ad3c19775df.png) no-repeat ;
+        }
+        #inp {
+            width: 300px;
+            margin: 0 auto;
+        }
+        .demo {
+            position: absolute;
+            right: 0;
+            top: 300px;
+        }
+        #message {
+            width: 500px;
+            margin: 0 auto;
+            color: #f10215;
+        }
+    </style>
+    <script type="text/javascript" src="index.js"></script>
+</head>
+<body>
+    <div id="inp">
+        <input id="text" type="text"/>
+        <button onclick="send()">发送消息</button>  
+    </div>
+    <button onclick="closeWebSocket()" class="demo">关闭WebSocket连接</button>
+    <hr/>
+    <div id="message"></div>
+    <button id="chat">点击加入聊天室,前端没写好，直接就加入了</button>
+    <button id="login">点击登录，登录</button>
+</body>
+
+<script type="text/javascript">
+    var login = document.getElementById("login");
+    var chat = document.getElementById('chat');
+    login.onclick = function () {
+        // ajax({
+        //     url : "/websocket/user/login.do",
+        //     method : "POST",
+        //     params : {name : "zhangsan",password : "123"}
+        // });
+    }
+    chat.onclick = function () {
+
+        ajax({
+            url: "/websocket/socket/join.do",
+            type: 'json',
+            callback: callback
+        });
+
+        // function callback(data) {
+
+            // if (data.msg === "你还没有登录，请去登录") {
+            //     alert("请登录");
+            // } else {
+                var websocket = null;
+                //判断当前浏览器是否支持WebSocket
+                if ('WebSocket' in window) {
+                    // 不带参数的写法
+                    // websocket = new WebSocket("ws://localhost:8080/socket");
+                    // 通过路径传递参数的方法（服务端采用第一种方法"@ServerEndpoint"实现）
+                    var uid = data.id;
+                    var name = data.name;
+                    var url = "ws://localhost:8080/socket/" + uid + "/" + name;
+                    websocket = new WebSocket(url);
+                    // 通过类似GET请求方式传递参数的方法（服务端采用第二种方法"WebSocketHandler"实现）
+                    // websocket = new WebSocket("ws:://localhost:8080/socket?id=23&name=Lebron");
+                } else {
+                    alert('当前浏览器 Not support websocket')
+                }
+
+                //连接发生错误的回调方法
+                websocket.onerror = function (message) {
+                    setMessageInnerHTML("WebSocket连接发生错误");
+                };
+
+                //连接成功建立的回调方法
+                websocket.onopen = function () {
+                    setMessageInnerHTML("WebSocket连接成功");
+                }
+
+                //接收到消息的回调方法
+                websocket.onmessage = function (event) {
+                    sendMessageInfo(event.data);
+                }
+
+                function sendMessageInfo(message) {
+                    var data = JSON.parse(message);
+                    if (data.length) {
+                        var len = data.length;
+                        for (var i = 0; i < len; i++) {
+                            document.getElementById('message').innerHTML += (data[i].name + ":" + data[i].msg) + '<br/>';
+                        }
+                    } else if (message !== '[]') {
+                        document.getElementById('message').innerHTML += (data.name + ":" + data.msg) + '<br/>';
+                    }
+
+                }
+
+                //连接关闭的回调方法
+                websocket.onclose = function () {
+                    setMessageInnerHTML("WebSocket连接关闭");
+                }
+
+                //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+                window.onbeforeunload = function () {
+                    closeWebSocket();
+                }
+
+                //将消息显示在网页上
+                function setMessageInnerHTML(innerHTML) {
+                    document.getElementById('message').innerHTML += innerHTML + '<br/>';
+                }
+
+                //关闭WebSocket连接
+                function closeWebSocket() {
+                    websocket.close();
+                }
+
+                //发送消息
+                function send() {
+                    var message = document.getElementById('text');
+                    websocket.send(message.value);
+                    message.value = "";
+                }
+            // }
+        // }
+    }
+</script>
+</html>

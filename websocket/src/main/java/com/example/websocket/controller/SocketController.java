@@ -1,110 +1,57 @@
 package com.example.websocket.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.example.websocket.domain.Message;
 import com.example.websocket.domain.User;
 import com.example.websocket.service.SocketService;
+import com.example.websocket.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.websocket.*;
-import javax.websocket.server.PathParam;
-import javax.websocket.server.ServerEndpoint;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.concurrent.CopyOnWriteArraySet;
+import javax.servlet.http.HttpSession;
+import java.util.*;
 
 /**
  * @author psl
- * @date 2019/5/22
+ * @date 2019/5/26
  */
+@RestController
 @Slf4j
-@ServerEndpoint("/socket/{id}/{name}")
-@Component
+@RequestMapping("/socket")
 public class SocketController {
-    //用来记录当前连接
-    private static volatile int onlineCount = 0;
-    //concurrent包的线程安全Set，用来存放每个客户端对应的MyWebSocket对象
-    private static CopyOnWriteArraySet<SocketController> socket  = new CopyOnWriteArraySet<>();
-    // 与某个客户端的连接会话，需要通过它来与客户端进行数据收发
-    private Session session;
-    private final User user = new User();
-    private static ApplicationContext applicationContext;
+    //把所有的聊天室放在里面，String——聊天室创建者名，List<User>——一个聊天室的成员
+    public static Map<String, Set<User>> chats = new HashMap<>();
     @Autowired
-    private SocketService service;
+    private SocketService socketService;
 
-    @OnOpen
-    public void onOpen(Session session, @PathParam("id") long id ,@PathParam("name")String name){
-        service = applicationContext.getBean(SocketService.class);
-        this.session = session;
-        System.out.println(this.session.getId());
-        socket.add(this);
-        user.setName(name);
-        addOnlineCount();
-        String all = service.findAll();
-        sendOne(all);
-        log.info("Open a websocket. id={}, name={}", id, name);
-
+    //加入聊天室
+    @RequestMapping("/join.do")
+    public String joinChatting(HttpSession session,String chatName){
+        User user = (User) session.getAttribute("user");
+        Set<User> users = chats.get(chatName);
+        users.add(user);
+        log.info("加入聊天成功");
+        return JSON.toJSONString(user);
     }
-    @OnClose
-    public void onClose(){
-        socket.remove(this);
-        subOnlineCount();
-        log.info("Close a websocket. ");
-    }
-    @OnMessage
-    public void onMessage(String message,Session session){
-        Message msg = new Message(this.user.getName(),message);
-        msg.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-//        service.insert(msg);
-        sendAll(JSON.toJSONString(msg));
-        log.info("Receive a message from client: " + message);
-    }
-    @OnError
-    public void onError(@PathParam("message")String message ,Throwable error){
-        log.error("Error while websocket. ", error);
-    }
-    public void sendMessage(String message){
-        if (this.session.isOpen()){
-            try {
-                this.session.getBasicRemote().sendText(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    //一对一聊天
+    @RequestMapping("/one.do")
+    public String oneToOneChatting(String name){
+        boolean flag = socketService.oneToOne(name);
+        if (!flag) {
+            log.info("该用户不是你的好友,不能一对一聊天");
+            return "该用户不是你的好友,不能一对一聊天";
         }
+        return "";
     }
-    public void sendOne(String messages){
-        if (messages != null){
-            sendMessage(messages);
-        }
-
-    }
-    /**
-     * 群发消息
-     * @param message
-     */
-    public void sendAll(String message){
-        if (message != null){
-            for(SocketController sc :socket){
-                sc.sendMessage(message);
-            }
-        }
-
-    }
-    public static synchronized int getOnlineCount(){
-        return onlineCount;
-    }
-    public static synchronized void addOnlineCount(){
-        SocketController.onlineCount++;
-    }
-    public static synchronized void subOnlineCount(){
-        SocketController.onlineCount--;
-    }
-    public static void setApplicationContext(ApplicationContext applicationContext){
-        SocketController.applicationContext = applicationContext;
+    //创建聊天室
+    @RequestMapping("/create.do")
+    public String createChat(HttpSession session){
+        User user = (User) session.getAttribute("user");
+        Set<User> users = new HashSet<>();
+        users.add(user);
+        chats.put(user.getName(),users);
+        log.info("创建聊天室成功");
+        return "创建聊天室成功";
     }
 }

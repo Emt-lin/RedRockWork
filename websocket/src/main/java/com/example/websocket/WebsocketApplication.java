@@ -1,6 +1,6 @@
 package com.example.websocket;
 
-import com.example.websocket.controller.SocketController;
+import com.example.websocket.controller.Socket;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -12,7 +12,7 @@ public class WebsocketApplication {
 //        SpringApplication.run(WebsocketApplication.class, args);
         SpringApplication springApplication = new SpringApplication(WebsocketApplication.class);
         ConfigurableApplicationContext configurableApplicationContext = springApplication.run(args);
-        SocketController.setApplicationContext(configurableApplicationContext);  // 解决WebSocket不能注入的问题
+        Socket.setApplicationContext(configurableApplicationContext);  // 解决WebSocket不能注入的问题
     }
 
 }
