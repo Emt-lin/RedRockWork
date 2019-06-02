@@ -32,9 +32,4 @@ public class SocketConfig implements WebMvcConfigurer {
 //        registry.addInterceptor(new LoginInterceptor()).addPathPatterns(urls).excludePathPatterns(excludeUrls);
     }
 
-    @Bean
-    public ServerEndpointExporter serverEndpointExporter(){
-       return new ServerEndpointExporter();
-    }
-
 }
